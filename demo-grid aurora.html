@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SafeTrip · Safety Rating</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fg: #0f172a;
+    --muted: #475569;
+    --bg: #BFCAA8;
+    --card: #D9E1C9;
+    --line: #e2e8f0;
+    --green: #00B658;
+    --amber: #F59E0B;
+    --red: #ef4444;
+  }
+  
+  body {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+  
+  .card {
+    background-color: var(--card);
+    border-color: var(--line);
+  }
+  
+  .score-bar {
+    height: 10px;
+    background-color: var(--line);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  
+  .score-bar-fill {
+    height: 100%;
+  }
+  
+  .kicker {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  #apiRow {
+    display: none !important;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-4xl mx-auto p-6">
+    <header class="flex justify-between items-center mb-3">
+      <div class="flex flex-wrap justify-center items-center mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="103" height="143" viewBox="0 0 103 143" fill="none">
+          <g filter="url(#filter0_d_267_97)">
+          <path d="M56.2178 125.786C53.9705 129.881 48.3524 129.881 46.1052 125.786L15.5146 70.0393C13.2673 65.944 16.0764 60.825 20.5709 60.825H81.7521C86.2466 60.825 89.0556 65.944 86.8084 70.0393L56.2178 125.786Z" fill="#C4E3BD"/>
+          <path d="M92.9068 49.6143C92.9068 73.7018 74.3475 93.2286 51.4534 93.2286C28.5593 93.2286 10 73.7018 10 49.6143C10 25.5268 28.5593 6 51.4534 6C74.3475 6 92.9068 25.5268 92.9068 49.6143Z" fill="#C4E3BD"/>
+          </g>
+          <g filter="url(#filter1_d_267_97)">
+          <path d="M51.4535 20.1286L81.8137 32.896C81.8137 53.034 73.5377 72.2869 58.925 86.1436L51.4535 93.2286L43.9819 86.1436C29.3692 72.287 21.0932 53.034 21.0932 32.896L51.4535 20.1286Z" fill="#F7E0D8"/>
+          <path d="M80.3061 33.8893C80.0388 53.2544 71.9666 71.71 57.893 85.0553L51.4536 91.1608L45.0141 85.0553C30.9405 71.71 22.8673 53.2544 22.6 33.8893L51.4526 21.7555L80.3061 33.8893Z" stroke="black" stroke-width="3"/>
+          </g>
+          <ellipse cx="51.4534" cy="59.4429" rx="6.42236" ry="6.75714" fill="#9AD48D"/>
+          <path d="M44.3462 72.3946C43.7648 73.4541 42.407 73.8235 41.4687 73.0619C39.9269 71.8107 38.6052 70.2758 37.5708 68.5256C36.1512 66.1236 35.3165 63.3903 35.1406 60.5678C34.9648 57.7453 35.4533 54.9207 36.5628 52.3443C37.6723 49.7679 39.3686 47.5191 41.5015 45.7972C43.6344 44.0753 46.1379 42.9334 48.7904 42.4726C51.4429 42.0118 54.1625 42.2464 56.7083 43.1557C59.254 44.0649 61.5473 45.6206 63.3851 47.6851C64.7866 49.2594 65.8902 51.0925 66.6437 53.0859C67.037 54.126 66.3908 55.2318 65.3205 55.5335C64.2111 55.8462 63.0761 55.1738 62.6199 54.1153C62.0686 52.8364 61.3207 51.6563 60.4022 50.6245C59.0239 49.0762 57.3039 47.9094 55.3946 47.2275C53.4853 46.5456 51.4456 46.3696 49.4562 46.7152C47.4668 47.0607 45.5891 47.9172 43.9895 49.2086C42.3898 50.5 41.1176 52.1866 40.2855 54.1189C39.4533 56.0513 39.087 58.1697 39.2188 60.2866C39.3507 62.4034 39.9767 64.4534 41.0415 66.2549C41.7535 67.4596 42.647 68.5283 43.683 69.4214C44.5431 70.1628 44.8925 71.3991 44.3462 72.3946Z" fill="#9AD48D"/>
+          <path d="M42.1694 36.9043C41.7791 35.9568 42.2059 34.8624 43.1677 34.5086C45.8811 33.5105 48.7416 33.0085 51.625 33.0292C55.1171 33.0543 58.5657 33.8456 61.7506 35.3526C64.9355 36.8596 67.7866 39.0491 70.1216 41.7812C72.0766 44.0687 73.6339 46.6944 74.7271 49.5378C75.083 50.4636 74.5658 51.4763 73.6281 51.7995C72.6497 52.1368 71.5927 51.595 71.206 50.6351C70.2804 48.3373 68.9973 46.2128 67.4058 44.3505C65.4105 42.0159 62.9742 40.145 60.2526 38.8572C57.5311 37.5694 54.5841 36.8932 51.6 36.8718C49.272 36.855 46.9613 37.2371 44.7578 37.9987C43.7371 38.3515 42.5807 37.9029 42.1694 36.9043Z" fill="#9AD48D"/>
+          <defs>
+          <filter id="filter0_d_267_97" x="0" y="0" width="102.907" height="142.857" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset dy="4"/>
+          <feGaussianBlur stdDeviation="5"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.8 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_267_97"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_267_97" result="shape"/>
+          </filter>
+          <filter id="filter1_d_267_97" x="17.0932" y="20.1286" width="68.7205" height="81.1" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset dy="4"/>
+          <feGaussianBlur stdDeviation="2"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.35 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_267_97"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_267_97" result="shape"/>
+          </filter>
+          </defs>
+        </svg> 
+        <svg class="p-2" width="339" height="95" viewBox="0 0 339 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#filter0_d_16_2)">
+          <path d="M29.5127 69.7192C16.1533 69.7192 7.24707 64.1528 4.64941 56.5454C4.23193 55.4321 4 54.2261 4 53.1128C4 49.7729 6.13379 47.6392 9.28809 47.6392C11.9321 47.6392 13.6021 48.7061 14.9009 51.3965C16.9883 57.1948 22.7402 59.7925 29.8838 59.7925C37.9551 59.7925 43.6143 55.8032 43.6143 50.2368C43.6143 45.4126 40.2744 42.4438 31.5537 40.6348L24.3638 39.1504C10.958 36.4136 4.6958 30.105 4.6958 20.3174C4.6958 8.53516 15.04 0.556641 29.5591 0.556641C41.3877 0.556641 50.5723 5.84473 53.3091 14.7046C53.5874 15.4468 53.7266 16.3281 53.7266 17.4414C53.7266 20.3638 51.6392 22.3584 48.5312 22.3584C45.748 22.3584 44.0317 21.1523 42.7793 18.5547C40.5063 12.8955 35.7285 10.4834 29.4663 10.4834C22.0444 10.4834 16.7563 14.0088 16.7563 19.6216C16.7563 24.1675 20.0962 27.0898 28.4458 28.8525L35.6357 30.3369C49.7373 33.2593 55.6748 38.9185 55.6748 48.8452C55.6748 61.6479 45.6089 69.7192 29.5127 69.7192ZM77.9404 69.3945C68.4312 69.3945 61.5195 63.4106 61.5195 54.5508C61.5195 45.8301 68.2456 40.5884 80.2134 39.8462L93.248 39.104V35.5786C93.248 30.4297 89.769 27.4609 84.0635 27.4609C79.564 27.4609 76.6416 28.9917 73.7656 33.2129C72.5596 34.79 71.0288 35.5322 69.0806 35.5322C66.251 35.5322 64.21 33.6768 64.21 30.8936C64.21 29.8267 64.4883 28.8062 64.9985 27.7393C67.5034 22.0337 75.1108 18.4155 84.5273 18.4155C96.7271 18.4155 104.659 24.8633 104.659 34.7437V63.7354C104.659 67.4463 102.293 69.5337 99.0464 69.5337C95.8921 69.5337 93.7119 67.6318 93.5264 64.1992V60.7666H93.2944C90.4648 66.1011 84.2954 69.3945 77.9404 69.3945ZM81.4658 60.6738C87.96 60.6738 93.248 56.3135 93.248 50.376V46.6187L81.8369 47.3145C76.2705 47.6855 73.0698 50.1904 73.0698 54.0869C73.0698 58.1226 76.4561 60.6738 81.4658 60.6738ZM122.982 69.5337C119.503 69.5337 117.184 67.3999 117.184 63.5034V28.3423H114.122C111.524 28.3423 109.669 26.7651 109.669 23.9355C109.669 21.2451 111.524 19.5752 114.122 19.5752H117.184V15.2148C117.184 5.61279 121.869 1.20605 130.729 1.15967C136.852 1.15967 139.588 3.10791 139.588 5.98389C139.588 7.74658 138.753 8.81348 137.037 9.32373C136.295 9.50928 135.506 9.60205 134.486 9.64844C130.265 9.74121 128.548 11.5967 128.548 15.7251V19.5752H134.764C137.315 19.5752 139.171 21.2451 139.171 23.9355C139.171 26.7651 137.315 28.3423 134.764 28.3423H128.734V63.5034C128.734 67.3999 126.415 69.5337 122.982 69.5337ZM166.075 69.5801C151.046 69.5801 142.186 60.1636 142.186 44.2065C142.186 28.5278 151.231 18.4155 165.426 18.4155C178.878 18.4155 188.062 27.9712 188.062 41.3306C188.062 44.7632 186.114 46.8042 182.682 46.8042H153.69V47.1753C153.69 55.3857 158.468 60.6738 165.982 60.6738C171.178 60.6738 174.564 58.8647 178.275 54.1333C179.481 52.7881 180.548 52.2778 182.171 52.2778C184.769 52.2778 186.81 53.9478 186.81 56.731C186.81 57.6123 186.532 58.6328 186.021 59.6533C182.774 65.9155 175.445 69.5801 166.075 69.5801ZM153.783 39.1968H176.744C176.512 32.0532 171.966 27.3682 165.472 27.3682C158.978 27.3682 154.247 32.146 153.783 39.1968ZM207.499 69.3945C203.788 69.3945 201.561 67.1216 201.561 63.1787V11.7822H186.253C183.006 11.7822 180.78 9.83398 180.78 6.72607C180.78 3.61816 182.96 1.66992 186.253 1.66992H228.79C232.083 1.66992 234.264 3.61816 234.264 6.72607C234.264 9.83398 232.037 11.7822 228.79 11.7822H213.482V63.1787C213.482 67.1216 211.256 69.3945 207.499 69.3945ZM238.392 69.5337C234.913 69.5337 232.64 67.2607 232.64 63.457V24.3066C232.64 20.6885 234.867 18.4619 238.16 18.4619C241.361 18.4619 243.634 20.6885 243.634 24.3066V28.064H243.866C245.211 22.312 249.479 18.6011 254.396 18.6011C256.205 18.6011 257.596 19.0649 258.478 19.8535C259.544 20.7349 260.101 22.1265 260.101 24.0283C260.101 25.8374 259.544 27.1826 258.385 28.1104C257.271 29.0845 255.555 29.5947 253.282 29.6411C246.695 29.6875 244.19 33.8159 244.19 39.7998V63.457C244.19 67.2607 241.871 69.5337 238.392 69.5337ZM271.327 12.5244C267.755 12.5244 264.925 9.74121 264.925 6.26221C264.925 2.73682 267.755 0 271.327 0C274.945 0 277.774 2.73682 277.774 6.26221C277.774 9.74121 274.945 12.5244 271.327 12.5244ZM271.327 69.5337C267.801 69.5337 265.575 67.2144 265.575 63.457V24.5386C265.575 20.8276 267.801 18.4619 271.327 18.4619C274.852 18.4619 277.125 20.8276 277.125 24.585V63.457C277.125 67.2144 274.852 69.5337 271.327 69.5337ZM292.572 86.0938C289.186 86.0938 286.82 83.9136 286.82 80.0171V24.3994C286.82 20.5957 289.139 18.4619 292.433 18.4619C295.726 18.4619 298.092 20.5957 298.092 24.3994V27.9248H298.324C301.107 22.2192 306.673 18.6011 313.817 18.6011C326.295 18.6011 334.227 28.2959 334.227 44.021C334.227 59.6997 326.341 69.3945 314.002 69.3945C306.859 69.3945 301.292 65.9619 298.602 60.4419H298.37V80.0171C298.37 83.9136 295.958 86.0938 292.572 86.0938ZM310.292 59.9316C317.76 59.9316 322.398 53.7622 322.398 44.021C322.398 34.3262 317.76 28.1104 310.292 28.1104C303.102 28.1104 298.324 34.4653 298.277 44.021C298.324 53.6694 303.102 59.9316 310.292 59.9316Z" fill="#DCEBD8"/>
+          </g>
+          <defs>
+          <filter id="filter0_d_16_2" x="0" y="0" width="338.227" height="94.0938" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset dy="4"/>
+          <feGaussianBlur stdDeviation="2"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_16_2"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_16_2" result="shape"/>
+          </filter>
+          </defs>
+        </svg>
+
+      </div>
+    </header>
+
+    <div class="card rounded-2xl border p-4 mb-3 shadow-lg">
+      <div class="flex flex-wrap gap-3">
+        <input id="q" class="flex-1 min-w-[200px] px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-gray-300" placeholder="พิมพ์เช่น พัทยา / บางแสน / จตุจักร / วัดโพธิ์ / ป่าตอง" />
+        <button id="go" class="px-4 py-3 rounded-full border bg-[#293817] text-white border-gray-900 hover:bg-[#3b4f24] transition-colors">ค้นหา</button>
+     
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <button id="useMock" class="px-3 py-2 rounded-full border bg-white text-gray-900 border-gray-300 hover:bg-gray-50 transition-colors active">โหมดตัวอย่าง</button>
+        <button id="useApi" class="px-3 py-2 rounded-full border bg-white text-gray-900 border-gray-300 hover:bg-gray-50 transition-colors">โหมด API</button>
+        <button id="night" class="px-3 py-2 rounded-full border bg-white text-gray-900 border-gray-300 hover:bg-gray-50 transition-colors">เดินกลางคืน</button>
+        <button id="wheel" class="px-3 py-2 rounded-full border bg-white text-gray-900 border-gray-300 hover:bg-gray-50 transition-colors">ใช้รถเข็น</button>
+      </div>
+      <div id="apiRow" class="flex flex-wrap gap-3 mt-2 hidden">
+        <input id="apiUrl" class="flex-1 min-w-[200px] px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-gray-300" placeholder="ใส่ URL ของ proxy API เช่น https://your-proxy.example/rate" />
+      </div>
+    </div>
+
+    <div id="out"></div>
+
+    <footer class="text-gray-600 mt-6 text-xs">Grid Aurora</footer>
+  </div>
+
+<script>
+  const KB = {
+  "พัทยา": {
+    place:"ชายหาดพัทยา, ชลบุรี",
+      sources:[
+        {title:"ร้องเรียนค่าเสียหายเจ็ตสกีสูงกว่าจริง", date:"2025-07", url:"https://www.khaosod.co.th/around-thailand/news_XXXXXX", tags:["scam"]},
+        {title:"กระเป๋าถูกล้วงบริเวณชายหาดช่วงค่ำ", date:"2025-02", url:"https://www.thairath.co.th/news/local/XXXXXX", tags:["crime","lowlight"]},
+        {title:"คนหนาแน่นสุดสัปดาห์ เสี่ยงเบียดเสียด", date:"2025-05", url:"https://www.matichon.co.th/local/quality-life/news_XXXXXX", tags:["crowd"]},
+        {title:"มีเส้นทางลาดลงหาดบางจุด (รีวิวผู้ใช้)", date:"2024-12", url:"https://www.thaihealth.or.th/XXXXX", tags:["positive","access"]}
+      ]
+  },
+  "บางแสน": {
+    place:"หาดบางแสน, ชลบุรี",
+      sources:[
+        {title:"รถชนใกล้จุดกลับรถ ช่วงเทศกาล", date:"2025-04", url:"https://www.pptvhd36.com/news/auto/XXXXXX", tags:["accident"]},
+        {title:"ไฟถนนส่องสว่างเพียงพอตามแนวชายหาดใหม่", date:"2025-03", url:"https://www.thaipbs.or.th/news/content/XXXXXX", tags:["positive"]},
+        {title:"ผู้ใช้วีลแชร์รีวิว: ทางลาดบางจุดชัน", date:"2025-06", url:"https://thestandard.co/XXXXX", tags:["access"]}
+      ]
+  },
+  "จตุจักร": {
+    place:"ตลาดนัดจตุจักร, กรุงเทพฯ",
+      sources:[
+        {title:"คนหนาแน่นมากเสาร์-อาทิตย์", date:"2025-01", url:"https://www.workpointtoday.com/XXXXX", tags:["crowd"]},
+        {title:"ระวังกระเป๋าถูกล้วงในตลาด", date:"2024-11", url:"https://www.sanook.com/news/XXXXXX/", tags:["crime"]},
+        {title:"ห้องน้ำผู้พิการมีบางโซน", date:"2025-02", url:"https://www.nationthailand.com/thai/society/XXXXXX", tags:["access","positive"]}
+      ]
+  },
+  "วัดโพธิ์": {
+    place:"วัดพระเชตุพน (วัดโพธิ์), กรุงเทพฯ",
+      sources:[
+        {title:"มีทางลาดและแผ่นพื้นนำทางบางเส้น", date:"2024-12", url:"https://www.bangkokpost.com/thailand/general/XXXXXX", tags:["positive","access"]},
+        {title:"ระวังไกด์เถื่อน/เรียกเก็บเงินเกินจริงหน้าวัด", date:"2025-03", url:"https://www.matichon.co.th/local/crime/news_XXXXXX", tags:["scam"]}
+      ]
+  },
+  "ป่าตอง": {
+    place:"หาดป่าตอง, ภูเก็ต",
+      sources:[
+        {title:"แท็กซี่เหมาจ่ายไม่เปิดมิเตอร์", date:"2025-06", url:"https://www.thairath.co.th/news/local/south/XXXXXX", tags:["scam"]},
+        {title:"พื้นที่แออัดช่วงกลางคืน", date:"2025-08", url:"https://www.springnews.co.th/news/XXXXXX", tags:["crowd","lowlight"]},
+        {title:"รีวิวผู้ใช้: ทางลาดเข้าร้านมีน้อย", date:"2025-05", url:"https://www.prachachat.net/tourism/news-XXXXXX", tags:["access"]}
+      ]
+  }
+};
+
+const BASE = { incidents:40, environment:20, accessibility:20, scam:20 };
+
+  const DICT = {
+      crime: [
+        "ชิงทรัพย์","ปล้น","ล้วงกระเป๋า","ฉก","ทำร้าย","ลวนลาม","คุกคาม","ทะเลาะวิวาท",
+        "วิ่งราว","กระชากกระเป๋า","ทำร้ายร่างกาย","คุกคามทางเพศ","ลักทรัพย์"
+      ],
+      accident: [
+        "อุบัติเหตุ","รถชน","ชนกัน","เหยียบ","ถูกรถชน","ชนสาหัส","ชนท้าย","ลื่นล้ม","ตกบันได","มอเตอร์ไซค์ล้ม",
+        "เตือนภัย","แจ้งเตือน","ประกาศเตือน","เตือน"
+      ],
+    lowlight: [
+      "มืด","เปลี่ยว","ไฟดับ","ไฟถนนเสีย","แสงสว่างน้อย","ไฟน้อย","ไฟไม่พอ","ซอยเปลี่ยว","รกร้าง","สว่างไม่เพียงพอ","ไม่มีไฟถนน"
+    ],
+    crowd: [
+      "คนแน่น","แออัด","เบียด","วุ่นวาย","แย่งกัน","แน่นขนัด","เบียดเสียด","คนล้น","นักท่องเที่ยวแน่น","รถติดหนัก"
+    ],
+    weather: [
+      "ฝนตกหนัก","น้ำท่วม","น้ำป่า","พายุ","พายุฝน","คลื่นลมแรง","คลื่นสูง","หมอกควัน","PM2.5","ค่าฝุ่น",
+      "ไฟไหม้ป่า","แผ่นดินไหว","ดินสไลด์","โคลนถล่ม","น้ำป่าหลาก","น้ำทะเลหนุน","สึนามิ","อากาศเลวร้าย","อากาศแย่",
+      "ร้อนจัด","คลื่นความร้อน"
+    ],
+    accessibility: [
+      "ไม่มีทางลาด","บันไดชัน","ห้องน้ำไม่รองรับ","พื้นลื่น","ไม่มีสัญญาณเสียงข้ามถนน",
+      "ไม่มีลิฟต์","ลิฟต์เสีย","ไม่มีทางเท้า","ฟุตปาธพัง","พื้นต่างระดับ","แผงลอยกีดขวาง","ไม่มีราวจับ",
+      "สะพานลอยชัน","ไม่มีลิฟต์สะพานลอย","พื้นขรุขระ","ทางแคบ","ไม่มีทางข้าม","สัญญาณไฟข้ามถนนเสีย",
+      "ไม่มีป้ายเสียง","ฝาท่อหาย","หลุมบ่อ","ทางลาดชัน","ไม่มีทางลาดมาตรฐาน","บันไดเยอะ","ไม่มีช่องทางวีลแชร์",
+      "BTS ไม่มีลิฟต์","MRT ลิฟต์เสีย","รถเมล์ไม่มีทางลาด"
+    ],
+    envbad: [
+      "ขยะเกลื่อน","ขยะ","สกปรก","น้ำเสีย","น้ำเน่า","กลิ่นเหม็น","มลพิษ","คุณภาพน้ำแย่","ห้ามลงเล่นน้ำ","งดลงเล่นน้ำ",
+      "ปักธงแดง","ธงแดง","แมงกะพรุนไฟ","สาหร่ายขึ้น","น้ำแดง"
+    ],
+      scam: [
+        "โกง","หลอก","เจ็ตสกี","แท็กซี่","ไม่เปิดมิเตอร์","ค่าหัวคิว","เรียกเก็บเพิ่ม","ไกด์เถื่อน",
+        "ต้มตุ๋น","ตุ๋น","โก่งราคา","ราคาเหมา","ยัดเยียดขาย","ตื้อขาย","คิดราคาเกินจริง","เมนูไม่มีราคา",
+        "เช่ารถโกง","เช่าร่มคิดแพง","ไถเงิน","ค่านายหน้า","เรียกเงิน","บังคับซื้อ","ขายบัตรแพง","ค่าเข้าชมเกินจริง","มิจฉาชีพ"
+      ],
+    positive: [
+      "รปภ.","ตำรวจตรวจ","ไฟสว่าง","มีทางลาด","ทางข้ามปลอดภัย","CCTV","กล้องวงจรปิด",
+      "ตำรวจสายตรวจ","ไฟถนนสว่าง","มีทางลาดมาตรฐาน","พื้นเรียบ","มีลิฟต์","มีสัญญาณไฟข้ามถนน","มีป้ายเสียง",
+      "เอื้อผู้ใช้รถเข็น","เจ้าหน้าที่ดูแล","บรรยากาศดี","วิวสวย","ร่มรื่น","เงียบสงบ","ปลอดภัย","ปลอดโปร่ง"
+    ],
+    positive_env: ["บรรยากาศดี","วิวสวย","ร่มรื่น","เงียบสงบ","ไฟสว่าง","ไฟถนนสว่าง","ปลอดโปร่ง"],
+    positive_access: ["มีทางลาด","พื้นเรียบ","มีลิฟต์","มีสัญญาณไฟข้ามถนน","มีป้ายเสียง","เอื้อผู้ใช้รถเข็น"],
+    positive_safety: ["รปภ.","ตำรวจตรวจ","ตำรวจสายตรวจ","CCTV","กล้องวงจรปิด","เจ้าหน้าที่ดูแล"]
+  };
+
+  function extractTagsFromEvidence(evidence){
+    const tags = [];
+    for(const e of (evidence||[])){
+      const t = ((e.title||"") + " " + (e.snippet||"")).toLowerCase();
+      const matched = [];
+      for(const [cat, words] of Object.entries(DICT)){
+        if(words.some(w => t.includes((w+"").toLowerCase()))){
+          if(cat === "accessibility") { matched.push("access"); continue; }
+          if(cat === "positive_env") { matched.push("posEnv"); continue; }
+          if(cat === "positive_access") { matched.push("posAccess"); continue; }
+          if(cat === "positive_safety") { matched.push("posSafe"); continue; }
+          matched.push(cat);
+        }
+      }
+      const negCats = new Set(["crime","accident","lowlight","crowd","weather","envbad","scam"]);
+      const hasNeg = matched.some(m => negCats.has(m));
+      const cleaned = hasNeg ? matched.filter(m => !(m==="posEnv"||m==="posAccess"||m==="posSafe"||m==="positive")) : matched;
+      tags.push(...cleaned);
+    }
+    return tags;
+  }
+
+    function scoreFromTags(tags, profile){
+      const c = {crime:0, accident:0, lowlight:0, crowd:0, weather:0, envbad:0, accessBad:0, scam:0, positive:0, posEnv:0, posAccess:0, posSafe:0};
+      for(const t of tags){
+        if(t==="crime") c.crime++;
+        if(t==="accident") c.accident++;
+        if(t==="lowlight") c.lowlight++;
+        if(t==="crowd") c.crowd++;
+        if(t==="weather") c.weather++;
+        if(t==="envbad") c.envbad++;
+        if(t==="access") c.accessBad++;
+        if(t==="scam") c.scam++;
+        if(t==="positive") c.positive++;
+        if(t==="posEnv") c.posEnv++;
+        if(t==="posAccess") c.posAccess++;
+        if(t==="posSafe") c.posSafe++;
+      }
+      let incident = 10*c.crime + 6*c.accident - 3*c.posSafe;
+      let env = 5*c.lowlight + 3*c.crowd + 5*c.weather + 4*c.envbad - 2*c.posEnv;
+      let access = 6*c.accessBad - 3*c.positive - 2*c.posAccess;
+      let scam = 5*c.scam;
+  if(profile.night) env *= 1.3;
+  if(profile.wheel) access *= 1.4;
+    const posInc = clamp(2*c.posSafe, 0, BASE.incidents);
+    const posEnv = clamp(2*c.posEnv, 0, BASE.environment);
+    const posAcc = clamp(2*c.posAccess + 2*c.positive, 0, BASE.accessibility);
+
+    incident = clamp(incident,0,BASE.incidents);
+    env = clamp(env,0,BASE.environment);
+    access = clamp(access,0,BASE.accessibility);
+    scam = clamp(scam,0,BASE.scam);
+    const bonus = clamp(2*(c.posEnv + c.posAccess + c.posSafe), 0, 8);
+    const gentle = 3; 
+    const score = clamp(100-(incident+env+access+scam)+bonus+gentle,0,100);
+  const evidenceCount = tags.length;
+  const confidence = evidenceCount>=5?"high":evidenceCount>=3?"medium":"low";
+    return {score:Math.round(score),pillars:{incidents:Math.round(incident),environment:Math.round(env),accessibility:Math.round(access),scam:Math.round(scam)},pillarsPos:{incidents:Math.round(posInc),environment:Math.round(posEnv),accessibility:Math.round(posAcc),scam:0},confidence};
+  }
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+
+const API_URL = "https://safetrip.tonplam008.workers.dev/rate";
+const qEl = document.getElementById('q');
+const goEl = document.getElementById('go');
+const out = document.getElementById('out');
+const nightEl = document.getElementById('night');
+const wheelEl = document.getElementById('wheel');
+const useMockEl = document.getElementById('useMock');
+const useApiEl = document.getElementById('useApi');
+const apiRow = document.getElementById('apiRow');
+const apiUrlEl = document.getElementById('apiUrl');
+
+let profile = {night:false,wheel:false};
+let mode = 'mock';
+useMockEl.classList.add('bg-blue-100'); useApiEl.classList.remove('bg-green-100'); apiRow.classList.add('hidden'); 
+nightEl.onclick = ()=>{ profile.night=!profile.night; nightEl.classList.toggle('bg-blue-100',profile.night); search(); };
+wheelEl.onclick = ()=>{ profile.wheel=!profile.wheel; wheelEl.classList.toggle('bg-blue-100',profile.wheel); search(); };
+useMockEl.onclick = ()=>{ mode='mock'; useMockEl.classList.add('bg-blue-100'); useApiEl.classList.remove('bg-blue-100'); apiRow.classList.add('hidden'); };
+useApiEl.onclick = ()=>{ mode='api'; useApiEl.classList.add('bg-blue-100'); useMockEl.classList.remove('bg-blue-100'); apiRow.classList.remove('hidden'); };
+
+goEl.onclick = search;
+qEl.addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+
+function search(){
+  const q = (qEl.value||'').trim();
+  if(!q){ out.innerHTML = '<div class="card rounded-2xl border p-4">พิมพ์ชื่อสถานที่ก่อน</div>'; return; }
+  out.innerHTML = '<div class="card rounded-2xl border p-4 mx-auto flex"><div class="flex justify-center items-center h-[300px] mx-auto text-2xl"><svg class="mr-3 -ml-1 size-5 animate-spin text-[#293817]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังประเมิน…</div></div>';
+  if(mode==='mock') return runMock(q);
+  return runApi(q);
+}
+
+  function runMock(q){
+  const key = Object.keys(KB).find(k=>k.includes(q));
+  if(!key){ out.innerHTML = '<div class="card rounded-2xl border p-4">ยังไม่มีข้อมูลตัวอย่างสำหรับคำนี้ ลอง: พัทยา / บางแสน / จตุจักร / วัดโพธิ์ / ป่าตอง</div>'; return; }
+  const entry = KB[key];
+  const tags = entry.sources.flatMap(s=>s.tags||[]);
+    const calc = scoreFromTags(tags, profile);
+    const good = buildGoodFromTags(tags);
+    renderResult(entry.place, entry.sources, calc, [], good);
+}
+
+  async function runApi(q){
+  const api = API_URL; 
+  if(!api){
+    out.innerHTML = '<div class="card rounded-2xl border p-4">ใส่ URL proxy API ในช่องก่อน (เช่น https://your-proxy/rate)</div>';
+    return;
+  }
+  try{
+    const url = api + '?place=' + encodeURIComponent(q);
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('API error');
+    const data = await r.json();
+
+    const sources = (data.evidence||[]).map(e=>({
+      title: e.title || e.snippet || e.url,
+      date: e.date || '',
+      url: e.url || '#',
+      tags: [] 
+    }));
+
+      const apiTags = extractTagsFromEvidence(data.evidence||[]);
+      const calc = scoreFromTags(apiTags, profile);
+      const good = buildGoodFromTags(apiTags);
+
+      const place = data.place || q;
+      renderResult(place, sources, calc, data.warnings||[], good);
+  }catch(err){
+    out.innerHTML = '<div class="card rounded-2xl border p-4">เรียก API ไม่สำเร็จ: '+(err.message||'')+'</div>';
+  }
+}
+
+  function renderResult(place, sources, calc, warnings, good){
+    const color = calc.score>=80? 'var(--green)': calc.score>=60? 'var(--amber)': 'var(--red)';
+    const warnCards = (warnings && warnings.length ? warnings : buildWarnings(sources))
+      .map(w=> `<div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mt-2"><div><b>${escape(w.name)}</b></div><div class="text-gray-600 text-sm">${escape(w.reason||'พบรีวิว/ข่าวร้องเรียนจากหลายแหล่ง')}</div>${w.tips?('<ul class="mt-1.5 ml-4 text-sm">'+w.tips.map(t=>`<li>${escape(t)}</li>`).join('')+'</ul>'):''}</div>`)
+      .join('');
+    const goodCards = (good && good.length ? good : [])
+      .map(g=> `<div class="bg-green-50 border border-green-200 rounded-xl p-3 mt-2"><div><b>${escape(g.name)}</b></div><div class="text-gray-600 text-sm">${escape(g.reason||'พบสัญญาณบวกจากหลายแหล่ง')}</div></div>`)
+      .join('');
+  const evList = sources.map(s=>
+    `<li class="py-2 flex justify-between gap-2 border-b border-gray-200 last:border-0">
+      <div><div class="font-semibold text-sm">${escape(s.title)}</div><div class="text-gray-600 text-xs">${escape(s.date||'')}</div></div>
+      <a class="text-blue-600 underline" href="${s.url}" target="_blank">เปิดลิงก์</a>
+    </li>`).join('');
+
+  out.innerHTML = `
+  <div class="card rounded-2xl border p-4 shadow-sm">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <h2 class="m-0 mb-1 text-xl font-bold">${escape(place)}</h2>
+        <div class="text-gray-600 text-sm">Confidence: ${escape(calc.confidence)}</div>
+      </div>
+      <div class="bg-[#DDF6D2] inline-flex items-baseline gap-1.5 px-3.5 py-2.5 rounded-2xl border border-black border-3">
+        <span class="text-xs">Safety</span>
+        <span class="text-2xl font-extrabold">${calc.score}</span>
+        <span class="text-xs">/100</span>
+      </div>
+    </div>
+
+    <div class="score-bar my-2.5"><div class="score-bar-fill" style="width:${calc.score}%; background:${color}"></div></div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+        ${pill('Incidents', calc.pillars.incidents, calc.pillarsPos.incidents)}
+        ${pill('Environment', calc.pillars.environment, calc.pillarsPos.environment)}
+        ${pill('Accessibility', calc.pillars.accessibility, calc.pillarsPos.accessibility)}
+        ${pill('Scam', calc.pillars.scam, 0)}
+      </div>
+
+      ${goodCards? ('<h3 class="mt-4 mb-1.5 text-lg font-semibold">Good Signs</h3>'+goodCards): ''}
+      ${warnCards? ('<h3 class="mt-4 mb-1.5 text-lg font-semibold">Warnings</h3>'+warnCards): ''}
+
+    <h3 class="mt-4 mb-1.5 text-lg font-semibold">หลักฐานที่ใช้อ้างอิง</h3>
+    <ul class="m-0 p-0 list-none">${evList}</ul>
+  </div>`;
+}
+
+  function pill(name, deduct, add){
+    const d = Math.round(deduct||0);
+    const a = Math.round(add||0);
+    const parts = [];
+    if(d>0) parts.push(`- ${d}`);
+    if(a>0) parts.push(`+ ${a}`);
+    const text = parts.length? parts.join(' / ') : '0';
+    return `<div class="bg-[#B0DB9C] border rounded-xl p-2.5 text-sm"><div class="text-xl text-[#293817] font-semibold">${name}</div><div class="text-gray-600">${text} คะแนน</div></div>`
+  }
+
+  function buildWarnings(sources){
+    const txt = sources.map(s=> (s.title||'') + ' ' + (s.snippet||'')).join(' ').toLowerCase();
+    const out=[]; const seen=new Set();
+    const push=(w)=>{ if(!w||!w.name||seen.has(w.name)) return; seen.add(w.name); out.push(w); };
+
+    if(/เจ็ทสกี|เจ็ตสกี/.test(txt)) push({
+      name:'ระวังเจ็ทสกีคิดค่าเสียหาย',
+      tips:['ถ่ายรูปก่อน-หลัง','ทำเงื่อนไขเป็นลายลักษณ์อักษร']
+    });
+    if(/แท็กซี่|มิเตอร์/.test(txt)) push({
+      name:'แท็กซี่ไม่เปิดมิเตอร์/เหมา',
+      tips:['ตกลงราคาก่อนขึ้น','เลือกผู้ให้บริการที่รีวิวดี']
+    });
+    if(/แก๊ง.?เบียดรถ|ตบทรัพย์|ชนแล้วรีดไถ/.test(txt)) push({
+      name:'ระวังแก๊งเบียดรถ/ตบทรัพย์',
+      reason:'พบข่าว/ประกาศเตือนในพื้นที่',
+      tips:['ทิ้งระยะห่างรถคันหน้า','หลีกเลี่ยงที่มืดเปลี่ยว','ติดกล้องหน้า/หลัง','โทร 191 เมื่อไม่ปลอดภัย']
+    });
+    if(/เช่า(มอ(เตอร์)?ไซค์|รถจักรยานยนต์)|ปรับเงิน|ค่าเสียหาย|หัวหมอ/.test(txt)) push({
+      name:'เช่ามอเตอร์ไซค์: ระวังค่าเสียหาย/ปรับเงิน',
+      reason:'พบข่าวเตือนการเช่ายานพาหนะ',
+      tips:['ถ่ายรูป/วิดีโอรอบคันก่อนรับรถ','ระบุสภาพรถในสัญญา','เลือกร้านรีวิวดีและใบเสร็จชัดเจน','เก็บหลักฐานการชำระเงิน']
+    });
+    if(/เพจปลอม|ปลอมที่พัก|หลอก.*(โอน|มัดจำ)|มัดจำ.*(ที่พัก|รีสอร์ท)|แอบอ้าง.*(รีสอร์ท|โรงแรม)/.test(txt)) push({
+      name:'เพจปลอมที่พัก/หลอกโอนมัดจำ',
+      reason:'พบการเตือนภัยเพจปลอม',
+      tips:['จองผ่านแพลตฟอร์มเชื่อถือได้','เช็คเพจ/เบอร์ official','หลีกเลี่ยงโอนตรงไปบัญชีส่วนบุคคล']
+    });
+    if(/ใบพัดเรือ|สปีดโบ(๊|็)ต|เรือเร็ว|จมน้ำ/.test(txt)) push({
+      name:'ความปลอดภัยทางน้ำ/เรือเร็ว',
+      reason:'พบอุบัติเหตุทางน้ำในพื้นที่',
+      tips:['สวมเสื้อชูชีพ','ขึ้นลงที่ท่าเรือที่กำกับ','เว้นระยะจากเรือ/ใบพัด','หลีกเลี่ยงว่ายน้ำช่วงเรือหนาแน่น']
+    });
+    if(/ธงแดง|งดลงเล่นน้ำ|ห้ามลงเล่นน้ำ|คลื่น(ลม)?แรง|คลื่นสูง|กระแสน้ำเชี่ยว|rip\s?current/.test(txt)) push({
+      name:'ธงแดง/คลื่นลมแรง งดลงเล่นน้ำ',
+      reason:'พบประกาศ/ข่าวเตือนสภาพทะเลไม่ปลอดภัย',
+      tips:['เชื่อฟังเจ้าหน้าที่กู้ชีพ/ไลฟ์การ์ด','เลี่ยงว่ายน้ำในเขตคลื่นแรง','สวมชูชีพเมื่อขึ้นเรือ','ติดตามพยากรณ์อากาศ/กัปตันท่าเรือ']
+    });
+    if(/แมงกะพรุนไฟ|โปรตุเกส แมน ออฟ วอร์|portuguese man o'? war/i.test(txt)) push({
+      name:'ระวังแมงกะพรุนไฟ',
+      reason:'พบการแจ้งเตือนแมงกะพรุน',
+      tips:['เลี่ยงลงน้ำเมื่อมีประกาศ','พกน้ำส้มสายชูใช้ราดบาดแผล','ไปพบแพทย์หากมีอาการรุนแรง']
+    });
+    if(/(งด|ยกเลิก)(เดินเรือ|เรือโดยสาร)|เรือ(งด|หยุด)ให้บริการ|ท่าเรือ(ปิด|หยุด)/.test(txt)) push({
+      name:'เรือโดยสารงด/จำกัดการให้บริการ',
+      reason:'อาจกระทบแผนการเดินทางข้ามเกาะ',
+      tips:['เช็กผู้ให้บริการก่อนออกเดินทาง','เผื่อเวลา/มีแผนสำรองเดินทางกลับฝั่ง']
+    });
+    if(/นักท่องเที่ยวทะลัก|แน่น|แออัด|คิว.*(ท่าเรือ|ท่าเทียบเรือ)|ท่าเทียบเรือแน่น|รถติดยาว/.test(txt)) push({
+      name:'แออัด/ท่าเทียบเรือคิวแน่น',
+      reason:'คาดช่วงคนหนาแน่น/คิวรอเรือยาว',
+      tips:['เผื่อเวลาเดินทาง','เลือกเวลารอบเช้า/บ่ายแก่','ซื้อตั๋วล่วงหน้า (ถ้ามี)']
+    });
+    if(/ล้วงกระเป๋า|ฉกกระเป๋า|กรีดกระเป๋า|ฉกฉวย|ขโมยของในที่แออัด|คนแน่น|แออัด/.test(txt)) push({
+      name:'ระวังกระเป๋าถูกล้วง/ฉกในที่แออัด',
+      reason:'พบเหตุลักทรัพย์ในพื้นที่ท่องเที่ยว',
+      tips:['สะพายกระเป๋าด้านหน้า','เลี่ยงใส่ของมีค่าในกระเป๋าหลัง','ใช้สายคล้อง/ซิปปิดสนิท']
+    });
+    if(/ไกด์เถื่อน|เรียกเก็บเงิน(เกิน|ไม่เป็นธรรม)|กีดกันเข้าชม/.test(txt)) push({
+      name:'ไกด์เถื่อน/เรียกเก็บเงินหน้าสถานที่',
+      reason:'พบรีวิวร้องเรียนที่แหล่งท่องเที่ยว',
+      tips:['ซื้อบัตรจากช่องทางทางการ','ปฏิเสธบริการที่ไม่ได้ร้องขอ','แจ้งเจ้าหน้าที่เมื่อถูกกดดัน']
+    });
+    if(/แต่งกายไม่เหมาะสม|ไม่(คลุม|ปิด)(ไหล่|เข่า)|กระโปรงสั้น|กางเกงสั้น/.test(txt)) push({
+      name:'ระเบียบการแต่งกายวัด/สถานที่ศักดิ์สิทธิ์',
+      reason:'อาจถูกปฏิเสธการเข้าชม',
+      tips:['คลุมไหล่/ปิดเข่า','เตรียมผ้าคลุมหรือเช่า/ยืมจากจุดบริการ']
+    });
+    if(/PM2\.5|ค่าฝุ่น|หมอกควัน|คุณภาพอากาศ(แย่|เลวร้าย)/.test(txt)) push({
+      name:'คุณภาพอากาศ/PM2.5 สูง',
+      reason:'เสี่ยงต่อระบบทางเดินหายใจ',
+      tips:['สวมหน้ากากกรองฝุ่น','ลดกิจกรรมกลางแจ้ง','ติดตามดัชนี AQI']
+    });
+    if(/ดิน(ถล่ม|สไลด์)|โคลนถล่ม|ปิด(เส้นทาง|ทางขึ้น|ทางเดิน)|ปิดอุทยาน/.test(txt)) push({
+      name:'ดินถล่ม/ปิดเส้นทางเดินเขา',
+      reason:'เสี่ยงอันตรายจากภูมิประเทศ/ฝน',
+      tips:['เช็คประกาศอุทยาน','เปลี่ยนแผนเส้นทาง','พกอุปกรณ์กันฝน/รองเท้ากันลื่น']
+    });
+    if(/สุนัขจรจัด|หมาจร|กัด|โรคพิษสุนัขบ้า/.test(txt)) push({
+      name:'ระวังสุนัขจรจัด',
+      reason:'พบเหตุถูกกัด/เสี่ยงพิษสุนัขบ้า',
+      tips:['หลีกเลี่ยงเข้าใกล้ฝูงสุนัข','ไม่วิ่ง/ยั่วยุ','รีบล้างแผลและพบแพทย์หากถูกกัด']
+    });
+
+    if(out.length===0 && /เตือนภัย|โปรดระวัง|แจ้งเตือน|ประกาศเตือน|ระวัง/.test(txt)) push({
+      name:'ข่าวแจ้งเตือน/โปรดระวัง',
+      reason:'พบคำเตือนในข่าว/รีวิว',
+      tips:['ตรวจสอบประกาศหน่วยงานรัฐ','หลีกเลี่ยงช่วงเวลาเสี่ยง']
+    });
+    return out.slice(0,6);
+  }
+  function buildGoodFromTags(tags){
+    const c = {posEnv:0,posAccess:0,posSafe:0};
+    for(const t of (tags||[])){
+      if(t==='posEnv') c.posEnv++;
+      if(t==='posAccess') c.posAccess++;
+      if(t==='posSafe') c.posSafe++;
+      if(t==='positive') c.posEnv++;
+    }
+    const arr=[];
+    if(c.posEnv>1) arr.push({name:'สภาพแวดล้อม/แสงสว่างค่อนข้างดี', reason:'พบคำบ่งชี้เชิงบวกเกี่ยวกับบรรยากาศ/ไฟสว่างมากกว่า 1 ครั้ง'});
+    if(c.posAccess>1) arr.push({name:'เข้าถึงได้ดีขึ้นบางส่วน', reason:'พบคำบ่งชี้ทางลาด/พื้นเรียบ/ลิฟต์มากกว่า 1 ครั้ง'});
+    if(c.posSafe>1) arr.push({name:'มีเจ้าหน้าที่/ระบบกล้องช่วยดูแล', reason:'พบคำบ่งชี้ รปภ./ตำรวจ/CCTV มากกว่า 1 ครั้ง'});
+    return arr;
+  }
+
+function escape(s){return (s+"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+</script>
+</body>
+</html>
